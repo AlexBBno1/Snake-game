@@ -399,7 +399,7 @@
             <canvas id="gameCanvas" width="400" height="400"></canvas>
             <div class="pause-overlay" id="pauseOverlay">
                 <div class="pause-text">⏸️ 暫停</div>
-                <div class="pause-hint">按 <kbd style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">P</kbd> 或 <kbd style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">ESC</kbd> 繼續</div>
+                <div class="pause-hint">按 <kbd style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">P</kbd> / <kbd style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">ESC</kbd> / <kbd style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">空白鍵</kbd> 繼續</div>
             </div>
         </div>
         
@@ -409,7 +409,7 @@
                 <button id="pauseBtn" class="game-btn">暫停</button>
             </div>
             <div class="control-info">
-                <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 移動 · <kbd>P</kbd> 或 <kbd>ESC</kbd> 暫停
+                <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 移動 · <kbd>P</kbd> / <kbd>ESC</kbd> / <kbd>空白鍵</kbd> 暫停
             </div>
         </div>
         
@@ -852,19 +852,19 @@
             const key = e.key.toLowerCase();
             
             // Prevent scrolling
-            if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(e.key.toLowerCase()) || 
+            if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', 'p', 'escape'].includes(key) || 
                 ['w', 'a', 's', 'd'].includes(key)) {
                 e.preventDefault();
             }
             
-            // Pause controls
-            if ((key === 'p' || e.key === 'Escape') && isGameRunning) {
+            // Pause controls (P, ESC, or Space when game is running)
+            if ((key === 'p' || key === 'escape' || key === ' ') && isGameRunning) {
                 togglePause();
                 return;
             }
             
-            // Start game with space
-            if (e.key === ' ' && !isGameRunning) {
+            // Start game with space (only when game is not running)
+            if (key === ' ' && !isGameRunning) {
                 startGame();
                 return;
             }
