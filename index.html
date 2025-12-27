@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🐍 貪食蛇遊戲</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap');
@@ -20,9 +20,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 20px;
             color: #fff;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         
         /* Animated background */
@@ -44,11 +45,14 @@
             position: relative;
             z-index: 1;
             text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 10px;
         }
         
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 900;
             margin-bottom: 10px;
             background: linear-gradient(90deg, #00ff88, #00d4ff, #ff00aa);
@@ -69,29 +73,29 @@
         .score-board {
             display: flex;
             justify-content: center;
-            gap: 40px;
-            margin: 20px 0;
+            gap: 30px;
+            margin: 15px 0;
             font-family: 'Orbitron', sans-serif;
         }
         
         .score-item {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 15px 30px;
+            padding: 12px 25px;
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         
         .score-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #aaa;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
         
         .score-value {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #00ff88;
             text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
@@ -100,6 +104,11 @@
         .score-item.high-score .score-value {
             color: #ffd700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .game-area {
+            position: relative;
+            display: inline-block;
         }
         
         #gameCanvas {
@@ -111,35 +120,37 @@
                 0 0 60px rgba(0, 212, 255, 0.2),
                 inset 0 0 30px rgba(0, 0, 0, 0.5);
             background: rgba(0, 0, 0, 0.8);
+            display: block;
         }
         
         .controls {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
         
         .control-info {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #888;
         }
         
         .control-info kbd {
             background: rgba(255, 255, 255, 0.1);
-            padding: 5px 10px;
+            padding: 4px 8px;
             border-radius: 5px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             font-family: 'Orbitron', monospace;
-            margin: 0 3px;
+            margin: 0 2px;
+            font-size: 0.75rem;
         }
         
         #startBtn {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            padding: 15px 50px;
+            padding: 12px 40px;
             background: linear-gradient(135deg, #00ff88, #00d4ff);
             border: none;
             border-radius: 50px;
@@ -186,22 +197,22 @@
         
         .game-over-content h2 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: #ff4444;
             margin-bottom: 20px;
             text-shadow: 0 0 30px rgba(255, 68, 68, 0.5);
         }
         
         .game-over-content .final-score {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
+            font-size: 1.3rem;
+            margin-bottom: 25px;
             color: #fff;
         }
         
         .game-over-content .final-score span {
             color: #00ff88;
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
         
         .new-record {
@@ -214,56 +225,79 @@
             50% { opacity: 0.5; }
         }
         
-        /* Mobile controls */
+        /* Mobile controls - moved up and improved */
         .mobile-controls {
             display: none;
-            margin-top: 20px;
-            gap: 10px;
+            margin-top: 15px;
+            gap: 8px;
         }
         
         .mobile-btn {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(0, 255, 136, 0.5);
+            width: 65px;
+            height: 65px;
+            font-size: 1.8rem;
+            background: rgba(0, 255, 136, 0.15);
+            border: 2px solid rgba(0, 255, 136, 0.6);
             border-radius: 15px;
             color: #00ff88;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .mobile-btn:active {
-            background: rgba(0, 255, 136, 0.3);
-            transform: scale(0.95);
+            background: rgba(0, 255, 136, 0.4);
+            transform: scale(0.92);
+            border-color: #00ff88;
         }
         
         .mobile-row {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
+        }
+        
+        .mobile-spacer {
+            width: 65px;
+            height: 65px;
         }
         
         @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
-            .score-board { gap: 20px; }
-            .score-item { padding: 10px 20px; }
-            .score-value { font-size: 1.5rem; }
+            body {
+                padding-top: 10px;
+            }
+            h1 { font-size: 1.8rem; }
+            .score-board { gap: 15px; margin: 10px 0; }
+            .score-item { padding: 8px 15px; }
+            .score-value { font-size: 1.4rem; }
+            .score-label { font-size: 0.65rem; }
             .mobile-controls { display: flex; flex-direction: column; }
             .control-info { display: none; }
+            #startBtn { padding: 10px 30px; font-size: 1rem; }
+            .controls { margin-top: 10px; gap: 8px; }
+        }
+        
+        @media (max-width: 400px) {
+            .mobile-btn {
+                width: 58px;
+                height: 58px;
+                font-size: 1.5rem;
+            }
+            .mobile-spacer {
+                width: 58px;
+                height: 58px;
+            }
         }
         
         /* Footer */
         .footer {
-            margin-top: 30px;
-            font-size: 0.8rem;
+            margin-top: 15px;
+            font-size: 0.75rem;
             color: #666;
-        }
-        
-        .footer a {
-            color: #00d4ff;
-            text-decoration: none;
         }
     </style>
 </head>
@@ -282,29 +316,33 @@
             </div>
         </div>
         
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="game-area">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+        </div>
         
         <div class="controls">
             <button id="startBtn">開始遊戲</button>
             <div class="control-info">
-                使用 <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 控制方向
+                使用 <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 控制
             </div>
         </div>
         
-        <!-- Mobile Controls -->
+        <!-- Mobile Controls - Compact layout -->
         <div class="mobile-controls">
             <div class="mobile-row">
-                <button class="mobile-btn" data-dir="up">↑</button>
+                <div class="mobile-spacer"></div>
+                <button class="mobile-btn" data-dir="up">▲</button>
+                <div class="mobile-spacer"></div>
             </div>
             <div class="mobile-row">
-                <button class="mobile-btn" data-dir="left">←</button>
-                <button class="mobile-btn" data-dir="down">↓</button>
-                <button class="mobile-btn" data-dir="right">→</button>
+                <button class="mobile-btn" data-dir="left">◀</button>
+                <button class="mobile-btn" data-dir="down">▼</button>
+                <button class="mobile-btn" data-dir="right">▶</button>
             </div>
         </div>
         
         <div class="footer">
-            把這個檔案分享給朋友，他們也可以玩！
+            分享給朋友一起玩！
         </div>
     </div>
     
@@ -318,17 +356,17 @@
             <div id="newRecordMsg" style="display: none; color: #ffd700; font-size: 1.2rem; margin-bottom: 20px;">
                 🎉 新紀錄！
             </div>
-            <button id="restartBtn">再玩一次</button>
+            <button id="restartBtn" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; padding: 12px 35px; background: linear-gradient(135deg, #00ff88, #00d4ff); border: none; border-radius: 50px; color: #0f0c29; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;">再玩一次</button>
         </div>
     </div>
     
     <script>
-        // Game Configuration
+        // Game Configuration - FASTER SPEED
         const CONFIG = {
             gridSize: 20,
-            initialSpeed: 150,
-            speedIncrease: 2,
-            minSpeed: 50
+            initialSpeed: 100,      // Faster! (was 150)
+            speedIncrease: 3,       // More speed increase per food
+            minSpeed: 40            // Faster minimum (was 50)
         };
         
         // Game State
@@ -342,16 +380,6 @@
         let gameLoop = null;
         let gameSpeed = CONFIG.initialSpeed;
         let isGameRunning = false;
-        
-        // Colors
-        const COLORS = {
-            snakeHead: '#00ff88',
-            snakeBody: '#00cc6a',
-            snakeGlow: 'rgba(0, 255, 136, 0.5)',
-            food: '#ff4444',
-            foodGlow: 'rgba(255, 68, 68, 0.5)',
-            grid: 'rgba(255, 255, 255, 0.03)'
-        };
         
         // Initialize
         function init() {
@@ -385,7 +413,7 @@
         }
         
         function adjustCanvasSize() {
-            const maxWidth = Math.min(400, window.innerWidth - 40);
+            const maxWidth = Math.min(400, window.innerWidth - 30);
             const size = Math.floor(maxWidth / CONFIG.gridSize) * CONFIG.gridSize;
             canvas.width = size;
             canvas.height = size;
@@ -396,7 +424,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             ctx.fillStyle = '#00ff88';
-            ctx.font = 'bold 24px Orbitron, sans-serif';
+            ctx.font = 'bold 20px Orbitron, sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('按下「開始遊戲」', canvas.width / 2, canvas.height / 2);
         }
@@ -486,6 +514,8 @@
         }
         
         function draw() {
+            const gridSize = CONFIG.gridSize;
+            
             // Clear canvas
             ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -493,78 +523,164 @@
             // Draw grid
             drawGrid();
             
-            // Draw food with glow
-            ctx.shadowColor = COLORS.foodGlow;
+            // Draw food (apple)
+            const foodX = food.x * gridSize + gridSize / 2;
+            const foodY = food.y * gridSize + gridSize / 2;
+            const foodRadius = gridSize / 2 - 2;
+            
+            // Apple glow
+            ctx.shadowColor = 'rgba(255, 68, 68, 0.8)';
             ctx.shadowBlur = 15;
-            ctx.fillStyle = COLORS.food;
+            
+            // Apple body
+            ctx.fillStyle = '#ff4444';
             ctx.beginPath();
-            ctx.arc(
-                food.x * CONFIG.gridSize + CONFIG.gridSize / 2,
-                food.y * CONFIG.gridSize + CONFIG.gridSize / 2,
-                CONFIG.gridSize / 2 - 2,
-                0,
-                Math.PI * 2
-            );
+            ctx.arc(foodX, foodY, foodRadius, 0, Math.PI * 2);
             ctx.fill();
+            
+            // Apple highlight
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(foodX - 3, foodY - 3, foodRadius / 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Apple stem
             ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#4a2';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(foodX, foodY - foodRadius);
+            ctx.quadraticCurveTo(foodX + 3, foodY - foodRadius - 5, foodX + 5, foodY - foodRadius - 3);
+            ctx.stroke();
             
             // Draw snake
             snake.forEach((segment, index) => {
-                const x = segment.x * CONFIG.gridSize;
-                const y = segment.y * CONFIG.gridSize;
+                const x = segment.x * gridSize;
+                const y = segment.y * gridSize;
+                const centerX = x + gridSize / 2;
+                const centerY = y + gridSize / 2;
                 
                 if (index === 0) {
-                    // Head with glow
-                    ctx.shadowColor = COLORS.snakeGlow;
+                    // === SNAKE HEAD ===
+                    ctx.shadowColor = 'rgba(0, 255, 136, 0.8)';
                     ctx.shadowBlur = 15;
-                    ctx.fillStyle = COLORS.snakeHead;
-                } else {
+                    
+                    // Head shape
+                    ctx.fillStyle = '#00ff88';
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, gridSize / 2 - 1, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Eyes
                     ctx.shadowBlur = 0;
-                    // Gradient body
-                    const alpha = 1 - (index / snake.length) * 0.5;
-                    ctx.fillStyle = `rgba(0, 204, 106, ${alpha})`;
+                    ctx.fillStyle = '#fff';
+                    let eyeOffsetX = 0, eyeOffsetY = 0;
+                    let eyeSpreadX = 4, eyeSpreadY = 4;
+                    
+                    switch(direction) {
+                        case 'right': eyeOffsetX = 3; eyeSpreadY = 5; eyeSpreadX = 0; break;
+                        case 'left': eyeOffsetX = -3; eyeSpreadY = 5; eyeSpreadX = 0; break;
+                        case 'up': eyeOffsetY = -3; eyeSpreadX = 5; eyeSpreadY = 0; break;
+                        case 'down': eyeOffsetY = 3; eyeSpreadX = 5; eyeSpreadY = 0; break;
+                    }
+                    
+                    // Left eye
+                    ctx.beginPath();
+                    ctx.arc(centerX + eyeOffsetX - eyeSpreadX, centerY + eyeOffsetY - eyeSpreadY, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Right eye
+                    ctx.beginPath();
+                    ctx.arc(centerX + eyeOffsetX + eyeSpreadX, centerY + eyeOffsetY + eyeSpreadY, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Pupils
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.arc(centerX + eyeOffsetX - eyeSpreadX + eyeOffsetX/2, centerY + eyeOffsetY - eyeSpreadY + eyeOffsetY/2, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(centerX + eyeOffsetX + eyeSpreadX + eyeOffsetX/2, centerY + eyeOffsetY + eyeSpreadY + eyeOffsetY/2, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Tongue (flickering)
+                    if (Math.random() > 0.5) {
+                        ctx.strokeStyle = '#ff4444';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        let tongueX = centerX, tongueY = centerY;
+                        let tongueEndX = centerX, tongueEndY = centerY;
+                        switch(direction) {
+                            case 'right': tongueX += gridSize/2; tongueEndX = tongueX + 8; break;
+                            case 'left': tongueX -= gridSize/2; tongueEndX = tongueX - 8; break;
+                            case 'up': tongueY -= gridSize/2; tongueEndY = tongueY - 8; break;
+                            case 'down': tongueY += gridSize/2; tongueEndY = tongueY + 8; break;
+                        }
+                        ctx.moveTo(tongueX, tongueY);
+                        ctx.lineTo(tongueEndX, tongueEndY);
+                        ctx.stroke();
+                        
+                        // Forked tongue
+                        ctx.beginPath();
+                        if (direction === 'right' || direction === 'left') {
+                            ctx.moveTo(tongueEndX, tongueEndY);
+                            ctx.lineTo(tongueEndX + (direction === 'right' ? 3 : -3), tongueEndY - 3);
+                            ctx.moveTo(tongueEndX, tongueEndY);
+                            ctx.lineTo(tongueEndX + (direction === 'right' ? 3 : -3), tongueEndY + 3);
+                        } else {
+                            ctx.moveTo(tongueEndX, tongueEndY);
+                            ctx.lineTo(tongueEndX - 3, tongueEndY + (direction === 'down' ? 3 : -3));
+                            ctx.moveTo(tongueEndX, tongueEndY);
+                            ctx.lineTo(tongueEndX + 3, tongueEndY + (direction === 'down' ? 3 : -3));
+                        }
+                        ctx.stroke();
+                    }
+                    
+                } else {
+                    // === SNAKE BODY ===
+                    ctx.shadowBlur = 0;
+                    
+                    // Alternating pattern for snake body
+                    const isEven = index % 2 === 0;
+                    const alpha = 1 - (index / snake.length) * 0.4;
+                    
+                    if (isEven) {
+                        ctx.fillStyle = `rgba(0, 200, 100, ${alpha})`;
+                    } else {
+                        ctx.fillStyle = `rgba(0, 255, 136, ${alpha})`;
+                    }
+                    
+                    // Body segment (rounded)
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, gridSize / 2 - 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Scale pattern
+                    ctx.fillStyle = `rgba(0, 180, 80, ${alpha * 0.5})`;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, gridSize / 4, 0, Math.PI * 2);
+                    ctx.fill();
                 }
-                
-                // Rounded rectangle for segments
-                roundRect(ctx, x + 1, y + 1, CONFIG.gridSize - 2, CONFIG.gridSize - 2, 5);
-                ctx.fill();
             });
             
             ctx.shadowBlur = 0;
         }
         
         function drawGrid() {
-            ctx.strokeStyle = COLORS.grid;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
             ctx.lineWidth = 1;
             
             const gridCount = canvas.width / CONFIG.gridSize;
             for (let i = 0; i <= gridCount; i++) {
-                // Vertical lines
                 ctx.beginPath();
                 ctx.moveTo(i * CONFIG.gridSize, 0);
                 ctx.lineTo(i * CONFIG.gridSize, canvas.height);
                 ctx.stroke();
                 
-                // Horizontal lines
                 ctx.beginPath();
                 ctx.moveTo(0, i * CONFIG.gridSize);
                 ctx.lineTo(canvas.width, i * CONFIG.gridSize);
                 ctx.stroke();
             }
-        }
-        
-        function roundRect(ctx, x, y, width, height, radius) {
-            ctx.beginPath();
-            ctx.moveTo(x + radius, y);
-            ctx.lineTo(x + width - radius, y);
-            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-            ctx.lineTo(x + width, y + height - radius);
-            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-            ctx.lineTo(x + radius, y + height);
-            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-            ctx.lineTo(x, y + radius);
-            ctx.quadraticCurveTo(x, y, x + radius, y);
-            ctx.closePath();
         }
         
         function generateFood() {
@@ -656,4 +772,3 @@
     </script>
 </body>
 </html>
-
