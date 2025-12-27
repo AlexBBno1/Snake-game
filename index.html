@@ -131,6 +131,12 @@
             gap: 10px;
         }
         
+        .button-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
         .control-info {
             font-size: 0.85rem;
             color: #888;
@@ -146,19 +152,22 @@
             font-size: 0.75rem;
         }
         
-        #startBtn {
+        .game-btn {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
-            padding: 12px 40px;
-            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            padding: 12px 30px;
             border: none;
             border-radius: 50px;
-            color: #0f0c29;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             transition: all 0.3s ease;
+        }
+        
+        #startBtn {
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            color: #0f0c29;
             box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
         }
         
@@ -169,6 +178,62 @@
         
         #startBtn:active {
             transform: translateY(0);
+        }
+        
+        #pauseBtn {
+            background: linear-gradient(135deg, #ff9500, #ff5e3a);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(255, 149, 0, 0.4);
+            display: none;
+        }
+        
+        #pauseBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255, 149, 0, 0.6);
+        }
+        
+        #pauseBtn.paused {
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        }
+        
+        /* Pause Overlay */
+        .pause-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        
+        .pause-overlay.show {
+            display: flex;
+        }
+        
+        .pause-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: #ff9500;
+            text-shadow: 0 0 30px rgba(255, 149, 0, 0.5);
+            animation: pausePulse 1.5s ease infinite;
+        }
+        
+        .pause-hint {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        @keyframes pausePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
         }
         
         .game-over-overlay {
@@ -255,6 +320,19 @@
             border-color: #00ff88;
         }
         
+        .mobile-btn.pause-mobile {
+            background: rgba(255, 149, 0, 0.15);
+            border-color: rgba(255, 149, 0, 0.6);
+            color: #ff9500;
+            font-size: 1.2rem;
+            width: auto;
+            padding: 0 20px;
+        }
+        
+        .mobile-btn.pause-mobile:active {
+            background: rgba(255, 149, 0, 0.4);
+        }
+        
         .mobile-row {
             display: flex;
             justify-content: center;
@@ -277,8 +355,9 @@
             .score-label { font-size: 0.65rem; }
             .mobile-controls { display: flex; flex-direction: column; }
             .control-info { display: none; }
-            #startBtn { padding: 10px 30px; font-size: 1rem; }
+            .game-btn { padding: 10px 25px; font-size: 0.9rem; }
             .controls { margin-top: 10px; gap: 8px; }
+            .pause-text { font-size: 1.5rem; }
         }
         
         @media (max-width: 400px) {
@@ -318,17 +397,27 @@
         
         <div class="game-area">
             <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div class="pause-overlay" id="pauseOverlay">
+                <div class="pause-text">⏸️ 暫停</div>
+                <div class="pause-hint">按 <kbd style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">P</kbd> 或 <kbd style="background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px;">ESC</kbd> 繼續</div>
+            </div>
         </div>
         
         <div class="controls">
-            <button id="startBtn">開始遊戲</button>
+            <div class="button-row">
+                <button id="startBtn" class="game-btn">開始遊戲</button>
+                <button id="pauseBtn" class="game-btn">暫停</button>
+            </div>
             <div class="control-info">
-                使用 <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 或 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 控制
+                <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 移動 · <kbd>P</kbd> 或 <kbd>ESC</kbd> 暫停
             </div>
         </div>
         
         <!-- Mobile Controls - Compact layout -->
         <div class="mobile-controls">
+            <div class="mobile-row">
+                <button class="mobile-btn pause-mobile" id="pauseMobileBtn">⏸️ 暫停</button>
+            </div>
             <div class="mobile-row">
                 <div class="mobile-spacer"></div>
                 <button class="mobile-btn" data-dir="up">▲</button>
@@ -356,7 +445,7 @@
             <div id="newRecordMsg" style="display: none; color: #ffd700; font-size: 1.2rem; margin-bottom: 20px;">
                 🎉 新紀錄！
             </div>
-            <button id="restartBtn" style="font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; padding: 12px 35px; background: linear-gradient(135deg, #00ff88, #00d4ff); border: none; border-radius: 50px; color: #0f0c29; cursor: pointer; text-transform: uppercase; letter-spacing: 2px;">再玩一次</button>
+            <button id="restartBtn" class="game-btn" style="background: linear-gradient(135deg, #00ff88, #00d4ff); color: #0f0c29;">再玩一次</button>
         </div>
     </div>
     
@@ -364,9 +453,9 @@
         // Game Configuration - FASTER SPEED
         const CONFIG = {
             gridSize: 20,
-            initialSpeed: 100,      // Faster! (was 150)
-            speedIncrease: 3,       // More speed increase per food
-            minSpeed: 40            // Faster minimum (was 50)
+            initialSpeed: 100,
+            speedIncrease: 3,
+            minSpeed: 40
         };
         
         // Game State
@@ -380,6 +469,7 @@
         let gameLoop = null;
         let gameSpeed = CONFIG.initialSpeed;
         let isGameRunning = false;
+        let isPaused = false;
         
         // Initialize
         function init() {
@@ -397,9 +487,11 @@
             document.addEventListener('keydown', handleKeyPress);
             document.getElementById('startBtn').addEventListener('click', startGame);
             document.getElementById('restartBtn').addEventListener('click', restartGame);
+            document.getElementById('pauseBtn').addEventListener('click', togglePause);
+            document.getElementById('pauseMobileBtn').addEventListener('click', togglePause);
             
             // Mobile controls
-            document.querySelectorAll('.mobile-btn').forEach(btn => {
+            document.querySelectorAll('.mobile-btn[data-dir]').forEach(btn => {
                 btn.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     handleMobileControl(btn.dataset.dir);
@@ -430,7 +522,13 @@
         }
         
         function startGame() {
-            if (isGameRunning) return;
+            if (isGameRunning && !isPaused) return;
+            
+            // If paused, resume instead
+            if (isPaused) {
+                togglePause();
+                return;
+            }
             
             // Reset game state
             snake = [
@@ -442,29 +540,58 @@
             nextDirection = 'right';
             score = 0;
             gameSpeed = CONFIG.initialSpeed;
+            isPaused = false;
             document.getElementById('score').textContent = '0';
             
             // Generate first food
             generateFood();
             
-            // Hide overlay
+            // Hide overlays
             document.getElementById('gameOverOverlay').style.display = 'none';
+            document.getElementById('pauseOverlay').classList.remove('show');
+            
+            // Update buttons
+            isGameRunning = true;
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').textContent = '暫停';
+            document.getElementById('pauseBtn').classList.remove('paused');
+            document.getElementById('pauseMobileBtn').textContent = '⏸️ 暫停';
             
             // Start game loop
-            isGameRunning = true;
-            document.getElementById('startBtn').textContent = '遊戲中...';
-            document.getElementById('startBtn').disabled = true;
-            
             gameLoop = setInterval(update, gameSpeed);
         }
         
         function restartGame() {
             document.getElementById('gameOverOverlay').style.display = 'none';
-            document.getElementById('startBtn').disabled = false;
             startGame();
         }
         
+        function togglePause() {
+            if (!isGameRunning) return;
+            
+            isPaused = !isPaused;
+            
+            if (isPaused) {
+                // Pause the game
+                clearInterval(gameLoop);
+                document.getElementById('pauseOverlay').classList.add('show');
+                document.getElementById('pauseBtn').textContent = '繼續';
+                document.getElementById('pauseBtn').classList.add('paused');
+                document.getElementById('pauseMobileBtn').textContent = '▶️ 繼續';
+            } else {
+                // Resume the game
+                document.getElementById('pauseOverlay').classList.remove('show');
+                document.getElementById('pauseBtn').textContent = '暫停';
+                document.getElementById('pauseBtn').classList.remove('paused');
+                document.getElementById('pauseMobileBtn').textContent = '⏸️ 暫停';
+                gameLoop = setInterval(update, gameSpeed);
+            }
+        }
+        
         function update() {
+            if (isPaused) return;
+            
             // Update direction
             direction = nextDirection;
             
@@ -699,9 +826,12 @@
         function gameOver() {
             clearInterval(gameLoop);
             isGameRunning = false;
+            isPaused = false;
             
-            document.getElementById('startBtn').textContent = '開始遊戲';
-            document.getElementById('startBtn').disabled = false;
+            // Reset buttons
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('pauseOverlay').classList.remove('show');
             
             // Check high score
             const isNewRecord = score > highScore;
@@ -727,11 +857,20 @@
                 e.preventDefault();
             }
             
+            // Pause controls
+            if ((key === 'p' || e.key === 'Escape') && isGameRunning) {
+                togglePause();
+                return;
+            }
+            
             // Start game with space
             if (e.key === ' ' && !isGameRunning) {
                 startGame();
                 return;
             }
+            
+            // Don't accept direction changes while paused
+            if (isPaused) return;
             
             // Direction controls
             const newDirection = getDirectionFromKey(e.key, key);
@@ -755,6 +894,7 @@
                 startGame();
                 return;
             }
+            if (isPaused) return;
             if (!isOpposite(dir, direction)) {
                 nextDirection = dir;
             }
