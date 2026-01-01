@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🐍 貪食蛇遊戲</title>
+    <title>🐴 2026 貪食馬遊戲</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&display=swap');
         
@@ -382,7 +382,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🐍 貪食蛇</h1>
+        <h1>🐴 2026 貪食馬</h1>
         
         <div class="score-board">
             <div class="score-item">
@@ -450,12 +450,10 @@
     </div>
     
     <script>
-        // Game Configuration - FASTER SPEED
+        // Game Configuration - SLOWER SPEED, NO PROGRESSIVE DIFFICULTY
         const CONFIG = {
             gridSize: 20,
-            initialSpeed: 100,
-            speedIncrease: 3,
-            minSpeed: 40
+            initialSpeed: 150
         };
         
         // Game State
@@ -625,13 +623,7 @@
                 score += 10;
                 document.getElementById('score').textContent = score;
                 generateFood();
-                
-                // Increase speed
-                if (gameSpeed > CONFIG.minSpeed) {
-                    gameSpeed -= CONFIG.speedIncrease;
-                    clearInterval(gameLoop);
-                    gameLoop = setInterval(update, gameSpeed);
-                }
+                // Speed stays constant - no progressive difficulty
             } else {
                 snake.pop();
             }
@@ -688,27 +680,115 @@
                 const centerY = y + gridSize / 2;
                 
                 if (index === 0) {
-                    // === SNAKE HEAD ===
-                    ctx.shadowColor = 'rgba(0, 255, 136, 0.8)';
+                    // === HORSE HEAD ===
+                    ctx.shadowColor = 'rgba(139, 90, 43, 0.8)';
                     ctx.shadowBlur = 15;
                     
-                    // Head shape
-                    ctx.fillStyle = '#00ff88';
+                    // Horse head colors
+                    const horseColor = '#8B5A2B';  // Brown
+                    const horseLightColor = '#A0522D';  // Sienna
+                    const maneColor = '#2F1810';  // Dark brown mane
+                    
+                    // Draw mane first (behind head)
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = maneColor;
+                    let maneOffsetX = 0, maneOffsetY = 0;
+                    switch(direction) {
+                        case 'right': maneOffsetX = -6; break;
+                        case 'left': maneOffsetX = 6; break;
+                        case 'up': maneOffsetY = 6; break;
+                        case 'down': maneOffsetY = -6; break;
+                    }
+                    // Mane tufts
+                    for (let i = -2; i <= 2; i++) {
+                        ctx.beginPath();
+                        if (direction === 'right' || direction === 'left') {
+                            ctx.ellipse(centerX + maneOffsetX, centerY + i * 3, 4, 6, 0, 0, Math.PI * 2);
+                        } else {
+                            ctx.ellipse(centerX + i * 3, centerY + maneOffsetY, 6, 4, 0, 0, Math.PI * 2);
+                        }
+                        ctx.fill();
+                    }
+                    
+                    // Head shape (elongated oval)
+                    ctx.shadowColor = 'rgba(139, 90, 43, 0.8)';
+                    ctx.shadowBlur = 15;
+                    ctx.fillStyle = horseColor;
                     ctx.beginPath();
-                    ctx.arc(centerX, centerY, gridSize / 2 - 1, 0, Math.PI * 2);
+                    if (direction === 'right' || direction === 'left') {
+                        ctx.ellipse(centerX, centerY, gridSize / 2 + 2, gridSize / 2 - 2, 0, 0, Math.PI * 2);
+                    } else {
+                        ctx.ellipse(centerX, centerY, gridSize / 2 - 2, gridSize / 2 + 2, 0, 0, Math.PI * 2);
+                    }
                     ctx.fill();
                     
-                    // Eyes
                     ctx.shadowBlur = 0;
+                    
+                    // Ears
+                    ctx.fillStyle = horseColor;
+                    let earSize = 5;
+                    switch(direction) {
+                        case 'right':
+                            // Two ears pointing forward-up
+                            ctx.beginPath();
+                            ctx.moveTo(centerX + 5, centerY - 6);
+                            ctx.lineTo(centerX + 10, centerY - 12);
+                            ctx.lineTo(centerX + 3, centerY - 8);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.moveTo(centerX + 5, centerY + 6);
+                            ctx.lineTo(centerX + 10, centerY + 12);
+                            ctx.lineTo(centerX + 3, centerY + 8);
+                            ctx.fill();
+                            break;
+                        case 'left':
+                            ctx.beginPath();
+                            ctx.moveTo(centerX - 5, centerY - 6);
+                            ctx.lineTo(centerX - 10, centerY - 12);
+                            ctx.lineTo(centerX - 3, centerY - 8);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.moveTo(centerX - 5, centerY + 6);
+                            ctx.lineTo(centerX - 10, centerY + 12);
+                            ctx.lineTo(centerX - 3, centerY + 8);
+                            ctx.fill();
+                            break;
+                        case 'up':
+                            ctx.beginPath();
+                            ctx.moveTo(centerX - 6, centerY - 5);
+                            ctx.lineTo(centerX - 12, centerY - 10);
+                            ctx.lineTo(centerX - 8, centerY - 3);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.moveTo(centerX + 6, centerY - 5);
+                            ctx.lineTo(centerX + 12, centerY - 10);
+                            ctx.lineTo(centerX + 8, centerY - 3);
+                            ctx.fill();
+                            break;
+                        case 'down':
+                            ctx.beginPath();
+                            ctx.moveTo(centerX - 6, centerY + 5);
+                            ctx.lineTo(centerX - 12, centerY + 10);
+                            ctx.lineTo(centerX - 8, centerY + 3);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.moveTo(centerX + 6, centerY + 5);
+                            ctx.lineTo(centerX + 12, centerY + 10);
+                            ctx.lineTo(centerX + 8, centerY + 3);
+                            ctx.fill();
+                            break;
+                    }
+                    
+                    // Eyes
                     ctx.fillStyle = '#fff';
                     let eyeOffsetX = 0, eyeOffsetY = 0;
                     let eyeSpreadX = 4, eyeSpreadY = 4;
                     
                     switch(direction) {
-                        case 'right': eyeOffsetX = 3; eyeSpreadY = 5; eyeSpreadX = 0; break;
-                        case 'left': eyeOffsetX = -3; eyeSpreadY = 5; eyeSpreadX = 0; break;
-                        case 'up': eyeOffsetY = -3; eyeSpreadX = 5; eyeSpreadY = 0; break;
-                        case 'down': eyeOffsetY = 3; eyeSpreadX = 5; eyeSpreadY = 0; break;
+                        case 'right': eyeOffsetX = 2; eyeSpreadY = 5; eyeSpreadX = 0; break;
+                        case 'left': eyeOffsetX = -2; eyeSpreadY = 5; eyeSpreadX = 0; break;
+                        case 'up': eyeOffsetY = -2; eyeSpreadX = 5; eyeSpreadY = 0; break;
+                        case 'down': eyeOffsetY = 2; eyeSpreadX = 5; eyeSpreadY = 0; break;
                     }
                     
                     // Left eye
@@ -729,51 +809,56 @@
                     ctx.arc(centerX + eyeOffsetX + eyeSpreadX + eyeOffsetX/2, centerY + eyeOffsetY + eyeSpreadY + eyeOffsetY/2, 1.5, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // Tongue (flickering)
-                    if (Math.random() > 0.5) {
-                        ctx.strokeStyle = '#ff4444';
-                        ctx.lineWidth = 2;
-                        ctx.beginPath();
-                        let tongueX = centerX, tongueY = centerY;
-                        let tongueEndX = centerX, tongueEndY = centerY;
-                        switch(direction) {
-                            case 'right': tongueX += gridSize/2; tongueEndX = tongueX + 8; break;
-                            case 'left': tongueX -= gridSize/2; tongueEndX = tongueX - 8; break;
-                            case 'up': tongueY -= gridSize/2; tongueEndY = tongueY - 8; break;
-                            case 'down': tongueY += gridSize/2; tongueEndY = tongueY + 8; break;
-                        }
-                        ctx.moveTo(tongueX, tongueY);
-                        ctx.lineTo(tongueEndX, tongueEndY);
-                        ctx.stroke();
-                        
-                        // Forked tongue
-                        ctx.beginPath();
-                        if (direction === 'right' || direction === 'left') {
-                            ctx.moveTo(tongueEndX, tongueEndY);
-                            ctx.lineTo(tongueEndX + (direction === 'right' ? 3 : -3), tongueEndY - 3);
-                            ctx.moveTo(tongueEndX, tongueEndY);
-                            ctx.lineTo(tongueEndX + (direction === 'right' ? 3 : -3), tongueEndY + 3);
-                        } else {
-                            ctx.moveTo(tongueEndX, tongueEndY);
-                            ctx.lineTo(tongueEndX - 3, tongueEndY + (direction === 'down' ? 3 : -3));
-                            ctx.moveTo(tongueEndX, tongueEndY);
-                            ctx.lineTo(tongueEndX + 3, tongueEndY + (direction === 'down' ? 3 : -3));
-                        }
-                        ctx.stroke();
+                    // Nostrils
+                    ctx.fillStyle = '#1a0a05';
+                    let nostrilOffset = 6;
+                    switch(direction) {
+                        case 'right':
+                            ctx.beginPath();
+                            ctx.ellipse(centerX + nostrilOffset, centerY - 2, 2, 1.5, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.ellipse(centerX + nostrilOffset, centerY + 2, 2, 1.5, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            break;
+                        case 'left':
+                            ctx.beginPath();
+                            ctx.ellipse(centerX - nostrilOffset, centerY - 2, 2, 1.5, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.ellipse(centerX - nostrilOffset, centerY + 2, 2, 1.5, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            break;
+                        case 'up':
+                            ctx.beginPath();
+                            ctx.ellipse(centerX - 2, centerY - nostrilOffset, 1.5, 2, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.ellipse(centerX + 2, centerY - nostrilOffset, 1.5, 2, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            break;
+                        case 'down':
+                            ctx.beginPath();
+                            ctx.ellipse(centerX - 2, centerY + nostrilOffset, 1.5, 2, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.beginPath();
+                            ctx.ellipse(centerX + 2, centerY + nostrilOffset, 1.5, 2, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                            break;
                     }
                     
                 } else {
-                    // === SNAKE BODY ===
+                    // === HORSE BODY ===
                     ctx.shadowBlur = 0;
                     
-                    // Alternating pattern for snake body
+                    // Alternating pattern for horse body (brown tones)
                     const isEven = index % 2 === 0;
                     const alpha = 1 - (index / snake.length) * 0.4;
                     
                     if (isEven) {
-                        ctx.fillStyle = `rgba(0, 200, 100, ${alpha})`;
+                        ctx.fillStyle = `rgba(139, 90, 43, ${alpha})`;  // Brown
                     } else {
-                        ctx.fillStyle = `rgba(0, 255, 136, ${alpha})`;
+                        ctx.fillStyle = `rgba(160, 82, 45, ${alpha})`;  // Sienna
                     }
                     
                     // Body segment (rounded)
@@ -781,8 +866,8 @@
                     ctx.arc(centerX, centerY, gridSize / 2 - 2, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // Scale pattern
-                    ctx.fillStyle = `rgba(0, 180, 80, ${alpha * 0.5})`;
+                    // Body pattern
+                    ctx.fillStyle = `rgba(101, 67, 33, ${alpha * 0.5})`;  // Dark brown
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, gridSize / 4, 0, Math.PI * 2);
                     ctx.fill();
